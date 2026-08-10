@@ -1,0 +1,30 @@
+#!/bin/sh
+# Turn a Markdown changelog into a Word document with our front matter.
+#
+# The whole tool is four lines of pandoc. That is the point: a team's real
+# toolbox is mostly small scripts that already work, and this is how they reach
+# an agent — inside the image, on the PATH, with a --help.
+set -eu
+
+if [ "${1:-}" = "--help" ] || [ $# -lt 1 ]; then
+  cat <<'USAGE'
+release-notes — build a release document from a Markdown changelog
+
+  release-notes <input.md> [output.docx]
+
+Adds a title page and a table of contents, then writes a .docx.
+USAGE
+  exit 0
+fi
+
+input="$1"
+output="${2:-$(basename "${input%.*}").docx}"
+
+pandoc "$input" \
+  --from markdown \
+  --to docx \
+  --toc \
+  --metadata title="Release notes" \
+  --output "$output"
+
+printf 'wrote %s (%s bytes)\n' "$output" "$(wc -c < "$output" | tr -d ' ')"

@@ -1,0 +1,24 @@
+#!/bin/sh
+# What is on this machine, in one command.
+#
+# A demo needs to prove which image it is running on, and "trust me" is not a
+# proof. This prints the marker baked in at build time and the versions of the
+# tools the image exists to provide.
+set -eu
+
+echo "== image =="
+cat /etc/toolbox-release 2>/dev/null || echo "no marker: this is not the toolbox image"
+
+echo
+echo "== tools =="
+for tool in pandoc qpdf jq python3; do
+  if command -v "$tool" >/dev/null 2>&1; then
+    printf '%-8s %s\n' "$tool" "$("$tool" --version 2>&1 | head -1)"
+  else
+    printf '%-8s missing\n' "$tool"
+  fi
+done
+
+echo
+echo "== our scripts =="
+ls -1 /opt/toolbox/bin 2>/dev/null || echo "none"
